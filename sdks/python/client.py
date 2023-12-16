@@ -7,12 +7,37 @@ class Client:
     self.host = host
     self.port = port
     self.player = 0
-    self.board = []
+    self.board = Board()
     self.max_turn_time = 0
   
   def get_move(self):
     # TODO
-    return [2,3]
+    return [2,4]
+  
+  def get_valid_moves(self):
+    """
+    Brute Force:
+      - Iterate over all cells
+      - If current cell == self.player:
+          - if adjacent disc == opponent (ex. left is 2):
+            - if the ___ adjacent cell to the opponent (ex. opponents left) is empty, valid
+            - else if the ___ adjacent cell to the oppoennt is player disc, not valid
+            - else the ___ adjacent cell to the opponent is another opponent disc, repeat
+            - repeat for all adjacent cells
+    """
+    for i in range(0, len(self.board)):
+      for j in range(0, len(self.board[i])):
+        current_cell = self.board[i][j]
+        
+        if current_cell == self.player:
+          # Do stuff
+          pass
+        else:
+          continue
+          
+    
+    
+    return []
 
   def prepare_response(self):
     move = self.get_move()
@@ -26,7 +51,7 @@ class Client:
       decoded_data = data.decode('UTF-8')
       json_data = json.loads(decoded_data)
       
-      self.board = json_data.get('board')
+      self.board.cells = json_data.get('board')
       self.max_turn_time = json_data.get('maxTurnTime')
       self.player = json_data.get('player')
     
@@ -39,8 +64,6 @@ if __name__ == "__main__":
   host = sys.argv[2] if (len(sys.argv) > 2 and sys.argv[2]) else socket.gethostname()
   client = Client(host, port)
   
-  print(client)
-
   sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
   try:
     sock.connect((host, port))
