@@ -11,8 +11,10 @@ class TestPrepareResponse:
     assert client_instance.prepare_response() == b'[2, 4]\n'
 
 class TestGetValidMoves:
-  def test_get_valid_moves_on_new_game(self, client_instance):
-    board = [
+  def test_get_valid_moves_on_new_game(self, client_instance, board_instance):
+    client_instance.player = 1
+    client_instance.board = board_instance
+    board_instance.cells = [
       [0, 0, 0, 0, 0, 0, 0, 0], 
       [0, 0, 0, 0, 0, 0, 0, 0], 
       [0, 0, 0, 0, 0, 0, 0, 0], 
@@ -23,8 +25,8 @@ class TestGetValidMoves:
       [0, 0, 0, 0, 0, 0, 0, 0]
     ]
     
-    expected = [[2,4], [3,5], [5,3], [4,2]]
-    actual = client_instance.get_valid_moves()
+    expected = set([(2, 4), (3, 5), (5, 3), (4, 2)])
+    actual = set(map(tuple, client_instance.get_valid_moves()))
 
     assert expected == actual
 

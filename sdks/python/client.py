@@ -1,6 +1,7 @@
 import sys
 import json
 import socket
+from board import Board
 
 class Client:
   def __init__(self, host, port):
@@ -9,6 +10,9 @@ class Client:
     self.player = 0
     self.board = Board()
     self.max_turn_time = 0
+  
+  def get_opponent(self):
+    return 2 if self.player == 1 else 1
   
   def get_move(self):
     # TODO
@@ -25,19 +29,34 @@ class Client:
             - else the ___ adjacent cell to the opponent is another opponent disc, repeat
             - repeat for all adjacent cells
     """
-    for i in range(0, len(self.board)):
-      for j in range(0, len(self.board[i])):
-        current_cell = self.board[i][j]
+    valid_moves = []
+    
+    for i in range(0, len(self.board.cells)):
+      for j in range(0, len(self.board.cells[i])):
+        current_cell = self.board.cells[i][j]
         
         if current_cell == self.player:
-          # Do stuff
-          pass
+          adjacent_cells = self.board.get_adjacent_cells(row=i, col=j)
+          for cell in adjacent_cells:
+            if self.board.cells[cell[0]][cell[1]] == self.get_opponent():
+              next_row = cell[0] + (cell[0] - i)
+              next_col = cell[1] + (cell[1] - j)
+
+              while 0 <= next_row < len(self.board.cells) and 0 <= next_col < len(self.board.cells[0]):
+                next_cell_value = self.board.cells[next_row][next_col]
+
+                if next_cell_value == self.player:
+                  break
+                elif next_cell_value == 0:
+                  valid_moves.append([next_row, next_col])
+                  break
+
+                next_row += (cell[0] - i)
+                next_col += (cell[1] - j)
         else:
           continue
           
-    
-    
-    return []
+    return valid_moves 
 
   def prepare_response(self):
     move = self.get_move()
