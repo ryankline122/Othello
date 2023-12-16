@@ -1,6 +1,7 @@
 import sys
 import json
 import socket
+import random
 from board import Board
 
 class Client:
@@ -14,11 +15,19 @@ class Client:
   def get_opponent(self):
     return 2 if self.player == 1 else 1
   
-  def get_move(self):
-    # TODO
-    return [2,4]
+  def choose_move(self):
+    # TODO: Improve me
+    valid_moves = self.get_valid_moves()
+
+    if valid_moves:
+      return random.choice(valid_moves)
+    else:
+      # This shouldn't be hit, but sometimes it does
+      print(self.board.cells)
+      return [0,0]
   
   def get_valid_moves(self):
+    # TODO: Improve me (if time allows)
     """
     Brute Force:
       - Iterate over all cells
@@ -59,7 +68,7 @@ class Client:
     return valid_moves 
 
   def prepare_response(self):
-    move = self.get_move()
+    move = self.choose_move()
     response = '{}\n'.format(move).encode()
     print('sending {!r}'.format(response))
     

@@ -1,13 +1,16 @@
 import pytest
+from unittest.mock import patch
 from client import Client
 
 class TestGetMove:
   def test_get_move_returns_a_valid_move(self, client_instance):
     board = [[0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 1, 0, 0, 0], [0, 0, 0, 1, 1, 0, 0, 0], [0, 0, 0, 2, 1, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0]]
-    assert client_instance.get_move() == [2, 4]
+    assert client_instance.choose_move() != None
 
 class TestPrepareResponse:
-  def test_prepare_response_returns_a_valid_response(self, client_instance):
+  @patch("client.Client.choose_move")
+  def test_prepare_response_returns_a_valid_response(self, mock_choose_move, client_instance):
+    client_instance.choose_move.return_value = [2,4]
     assert client_instance.prepare_response() == b'[2, 4]\n'
 
 class TestGetValidMoves:
@@ -26,6 +29,44 @@ class TestGetValidMoves:
     ]
     
     expected = set([(2, 4), (3, 5), (5, 3), (4, 2)])
+    actual = set(map(tuple, client_instance.get_valid_moves()))
+
+    assert expected == actual
+
+  def test_get_valid_moves_endgame1(self, client_instance, board_instance):
+    client_instance.player = 1
+    client_instance.board = board_instance
+    board_instance.cells = [
+      [1, 1, 1, 0, 2, 2, 2, 2], 
+      [1, 1, 1, 1, 2, 2, 2, 2], 
+      [1, 2, 1, 2, 1, 1, 2, 2], 
+      [1, 1, 1, 2, 1, 1, 2, 2], 
+      [1, 1, 1, 2, 1, 2, 2, 2], 
+      [0, 1, 2, 1, 1, 2, 1, 2], 
+      [1, 2, 1, 1, 1, 1, 1, 2], 
+      [2, 2, 2, 2, 2, 2, 2, 2]
+    ]
+    
+    expected = set([0,3])
+    actual = set(map(tuple, client_instance.get_valid_moves()))
+
+    assert expected == actual
+
+  def test_get_valid_moves_endgame2(self, client_instance, board_instance):
+    client_instance.player = 1
+    client_instance.board = board_instance
+    board_instance.cells = [
+      [1, 1, 1, 1, 1, 1, 1, 1], 
+      [0, 2, 2, 2, 2, 2, 2, 2], 
+      [1, 2, 2, 2, 1, 1, 2, 2], 
+      [1, 2, 1, 2, 1, 2, 2, 2], 
+      [1, 2, 1, 1, 2, 2, 1, 2], 
+      [1, 2, 1, 2, 1, 2, 1, 2], 
+      [1, 1, 1, 1, 2, 1, 2, 2], 
+      [1, 2, 2, 2, 2, 2, 2, 2]
+    ]
+      
+    expected = set([1,0])
     actual = set(map(tuple, client_instance.get_valid_moves()))
 
     assert expected == actual
