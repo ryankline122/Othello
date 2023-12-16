@@ -17,16 +17,49 @@ class Client:
   
   def choose_move(self):
     # TODO: Improve me
-    valid_moves = self.get_valid_moves()
+    """
+    Strategies:
+    - Corners are most valuable (cannot be flipped)
+    - Not recommended to take cells adjacent to corners
+    - Focus on limiting opponents options and increasing yours instead of just number of discs on the board
+    - Focus on initial 4x4 central area at the start of the game.
+    """
+    corners = [
+      [0,0],
+      [0,7],
+      [7,0],
+      [7,7],
+    ]
+    
+    options = {}
+    
+    valid_moves = self.get_valid_moves(self.player)
+    valid_moves_for_opponent = self.get_valid_moves(self.get_opponent)
+    selected_move = []
 
     if valid_moves:
-      return random.choice(valid_moves)
+      for move in valid_moves:
+        # Prioritize corners
+        if move in corners:
+          return move
+        else:
+          next_board = self.board.what_if(row=move[0], col=move[1], player=self.player)
+          next_board_valid_moves = self.get_valid_moves(self.player, board=next_board)
+          next_board_valid_moves_for_opponent = self.get_valid_moves(self.get_opponent, board=next_board)
+          next_board_disc_count = self.board.get_discs_for_player(player=self.player)
+          increases_opponent_options = 0.5 if len(next_board_valid_moves_for_opponent) > len(valid_moves_for_opponent) else 1
+          
+          options[str(move)] = ((len(next_board_valid_moves) - len(next_board_valid_moves_for_opponent)) + next_board_disc_count) * increases_opponent_options
+      
+      print(f"Options: {options}")
+      selected_move = max(options, key=options.get)
+      return selected_move
     else:
-      # This shouldn't be hit, but sometimes it does
+      print("Missing one or more valid moves. Forfeiting game")
       print(self.board.cells)
       return [0,0]
   
-  def get_valid_moves(self):
+  def get_valid_moves(self, player=1, board=None):
     # TODO: Improve me (if time allows)
     """
     Brute Force:
@@ -34,28 +67,30 @@ class Client:
       - If current cell == self.player:
           - if adjacent disc == opponent (ex. left is 2):
             - if the ___ adjacent cell to the opponent (ex. opponents left) is empty, valid
-            - else if the ___ adjacent cell to the oppoennt is player disc, not valid
+            - else if the ___ adjacent cell to the opponent is player disc, not valid
             - else the ___ adjacent cell to the opponent is another opponent disc, repeat
             - repeat for all adjacent cells
     """
-    valid_moves = []
+    if board is None:
+      board = self.board
     
-    for i in range(0, len(self.board.cells)):
-      for j in range(0, len(self.board.cells[i])):
-        current_cell = self.board.cells[i][j]
+    valid_moves = []
+
+    for i in range(0, len(board.cells)):
+      for j in range(0, len(board.cells[i])):
+        current_cell = board.cells[i][j]
         
-        if current_cell == self.player:
-          adjacent_cells = self.board.get_adjacent_cells(row=i, col=j)
-          print(adjacent_cells, i,j)
+        if current_cell == player:
+          adjacent_cells = board.get_adjacent_cells(row=i, col=j)
           for cell in adjacent_cells:
-            if self.board.cells[cell[0]][cell[1]] == self.get_opponent():
+            if board.cells[cell[0]][cell[1]] == self.get_opponent():
               next_row = cell[0] + (cell[0] - i)
               next_col = cell[1] + (cell[1] - j)
 
-              while 0 <= next_row < len(self.board.cells) and 0 <= next_col < len(self.board.cells[0]):
-                next_cell_value = self.board.cells[next_row][next_col]
+              while 0 <= next_row < len(board.cells) and 0 <= next_col < len(board.cells[0]):
+                next_cell_value = board.cells[next_row][next_col]
 
-                if next_cell_value == self.player:
+                if next_cell_value == player:
                   break
                 elif next_cell_value == 0:
                   valid_moves.append([next_row, next_col])
@@ -63,8 +98,6 @@ class Client:
 
                 next_row += (cell[0] - i)
                 next_col += (cell[1] - j)
-        else:
-          continue
           
     return valid_moves 
 
