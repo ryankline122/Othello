@@ -262,19 +262,29 @@ class TestBoard:
   def test_get_adjacent_cells_for_row_3_col_3(self, board_instance):
     expected = [[2,2], [2,3], [2,4], [3,2], [3,4], [4,2], [4,3], [4,4]]
     actual = board_instance.get_adjacent_cells(row=3, col=3)
+
+    assert expected == actual
   
   def test_get_adjacent_cells_for_top_left_corner(self, board_instance):
     expected = [[0,1], [1,1], [1,0]]
     actual = board_instance.get_adjacent_cells(row=0, col=0)
 
+    assert expected == actual
+
   def test_get_adjacent_cells_for_top_right_corner(self, board_instance):
     expected = [[0,6], [1,6], [1,7]]
     actual = board_instance.get_adjacent_cells(row=0, col=7)
+
+    assert expected == actual
 
   def test_get_adjacent_cells_for_bottom_left_corner(self, board_instance):
     expected = [[6,0], [6,1], [7,1]]
     actual = board_instance.get_adjacent_cells(row=7, col=0)
 
+    assert expected == actual
+
   def test_get_adjacent_cells_for_bottom_right_corner(self, board_instance):
     expected = [[6,6], [6,7], [7,6]]
     actual = board_instance.get_adjacent_cells(row=7, col=7)
+
+    assert expected == actual
