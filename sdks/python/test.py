@@ -33,6 +33,25 @@ class TestGetValidMoves:
 
     assert expected == actual
   
+  def test_get_valid_moves_check_diagonals(self, client_instance, board_instance):
+    client_instance.player = 1
+    client_instance.board = board_instance
+    board_instance.cells = [
+      # 0  1  2  3  4  5  6  7
+      [0, 0, 0, 0, 0, 0, 0, 0], 
+      [0, 0, 0, 0, 0, 0, 0, 0], 
+      [0, 0, 2, 2, 2, 0, 0, 0], 
+      [0, 0, 2, 1, 2, 0, 0, 0], 
+      [0, 0, 2, 2, 2, 0, 0, 0], 
+      [0, 0, 0, 0, 0, 0, 0, 0], 
+      [0, 0, 0, 0, 0, 0, 0, 0], 
+      [0, 0, 0, 0, 0, 0, 0, 0]
+    ]
+    
+    expected = sorted([[1,1], [1,3], [1,5], [3,5], [5,5], [5,3], [5,1], [3,1]])
+    actual = sorted(client_instance.get_valid_moves())
+
+    assert expected == actual
   def test_get_valid_moves_edge_upper(self, client_instance, board_instance):
     client_instance.player = 1
     client_instance.board = board_instance

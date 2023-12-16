@@ -46,6 +46,7 @@ class Client:
         
         if current_cell == self.player:
           adjacent_cells = self.board.get_adjacent_cells(row=i, col=j)
+          print(adjacent_cells, i,j)
           for cell in adjacent_cells:
             if self.board.cells[cell[0]][cell[1]] == self.get_opponent():
               next_row = cell[0] + (cell[0] - i)
