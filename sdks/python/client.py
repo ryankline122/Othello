@@ -31,8 +31,14 @@ class Client:
       [7,7],
     ]
     
-    options = {}
+    center = [
+      [2,2], [2,3], [2,4], [2,5],
+      [3,2], [3,3], [3,4], [3,5],
+      [4,2], [4,3], [4,4], [4,5],
+      [5,2], [5,3], [5,4], [5,5],
+    ]
     
+    options = {}
     valid_moves = self.get_valid_moves(self.player)
     valid_moves_for_opponent = self.get_valid_moves(self.get_opponent())
     selected_move = []
@@ -41,13 +47,15 @@ class Client:
       for move in valid_moves:
         if move in corners:
           options[str(move)] = 999
+        elif (
+          (move[0] == 0 or move[0] == 7) or
+          (move[1] == 0 or move[1] == 7)
+        ):
+          options[str(move)] = 100
+        elif move in center:
+          options[str(move)] = 75
         else:
-          for opponent_move in valid_moves_for_opponent:
-            if opponent_move in corners:
-              options[str(move)] = -999
-              break 
-          
-      options[str(move)] = 0
+          options[str(move)] = 50
       
       # Choose best move
       print(f"Options: {options}")
@@ -99,7 +107,6 @@ class Client:
                 next_row += (cell[0] - i)
                 next_col += (cell[1] - j)
                 
-          
     return valid_moves 
 
   def prepare_response(self):
