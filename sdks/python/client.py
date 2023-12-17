@@ -34,23 +34,22 @@ class Client:
     options = {}
     
     valid_moves = self.get_valid_moves(self.player)
-    valid_moves_for_opponent = self.get_valid_moves(self.get_opponent)
+    valid_moves_for_opponent = self.get_valid_moves(self.get_opponent())
     selected_move = []
 
     if valid_moves:
       for move in valid_moves:
-        # Prioritize corners
         if move in corners:
-          return move
+          options[str(move)] = 999
         else:
-          next_board = self.board.what_if(row=move[0], col=move[1], player=self.player)
-          next_board_valid_moves = self.get_valid_moves(self.player, board=next_board)
-          next_board_valid_moves_for_opponent = self.get_valid_moves(self.get_opponent, board=next_board)
-          next_board_disc_count = self.board.get_discs_for_player(player=self.player)
-          increases_opponent_options = 0.5 if len(next_board_valid_moves_for_opponent) > len(valid_moves_for_opponent) else 1
+          for opponent_move in valid_moves_for_opponent:
+            if opponent_move in corners:
+              options[str(move)] = -999
+              break 
           
-          options[str(move)] = ((len(next_board_valid_moves) - len(next_board_valid_moves_for_opponent)) + next_board_disc_count) * increases_opponent_options
+      options[str(move)] = 0
       
+      # Choose best move
       print(f"Options: {options}")
       selected_move = max(options, key=options.get)
       return selected_move
@@ -73,9 +72,10 @@ class Client:
     """
     if board is None:
       board = self.board
-    
+      
     valid_moves = []
-
+    opponent = 2 if player == 1 else 1
+    
     for i in range(0, len(board.cells)):
       for j in range(0, len(board.cells[i])):
         current_cell = board.cells[i][j]
@@ -83,7 +83,7 @@ class Client:
         if current_cell == player:
           adjacent_cells = board.get_adjacent_cells(row=i, col=j)
           for cell in adjacent_cells:
-            if board.cells[cell[0]][cell[1]] == self.get_opponent():
+            if board.cells[cell[0]][cell[1]] == opponent:
               next_row = cell[0] + (cell[0] - i)
               next_col = cell[1] + (cell[1] - j)
 
@@ -98,6 +98,7 @@ class Client:
 
                 next_row += (cell[0] - i)
                 next_col += (cell[1] - j)
+                
           
     return valid_moves 
 
